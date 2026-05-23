@@ -1,0 +1,30 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/python:3.10-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install Tor and Privoxy
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y tor privoxy
+            echo "forward-socks5t / 127.0.0.1:9050 ." | sudo tee -a /etc/privoxy/config
+            sudo service tor start
+            sudo service privoxy start
+      - run:
+          name: Install Dependencies
+          command: pip install selenium
+      - run:
+          name: Run Bot
+          command: |
+            chmod +x start.sh
+            ./start.sh
+
+workflows:
+  main_workflow:
+    jobs:
+      - build
+
